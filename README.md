@@ -128,11 +128,11 @@ The optional GitHub Actions workflow validates Markdown, Mermaid diagrams, shell
 
 ## Author
 
-**Prateek Hanvate**
+**Pratik Hanvate**
 
-- GitHub: `<YOUR_GITHUB_PROFILE_URL>`
-- LinkedIn: `<YOUR_LINKEDIN_URL>`
-- Email: `<OPTIONAL_PUBLIC_EMAIL>`
+- GitHub: `https://github.com/pratikhanvate99-commits`
+- LinkedIn: `https://www.linkedin.com/in/pratik-hanvate-310a5b317/`
+- Email: `pratikhanvate99@gmail.com`
 
 ## License
 
