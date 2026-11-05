@@ -1,0 +1,11 @@
+resource_type,logical_name,resource_id_placeholder,region,availability_zone,purpose,backup_method,backup_frequency,retention,encryption_enabled,owner,environment,status,notes
+EC2,<INSTANCE_NAME>,<INSTANCE_ID>,<REGION>,<AZ>,Primary workload,<AWS_BACKUP_OR_SNAPSHOT>,<FREQUENCY>,<RETENTION>,<YES_NO>,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+EBS,<VOLUME_NAME>,<VOLUME_ID>,<REGION>,<AZ>,Root/data volume,<AWS_BACKUP_OR_SNAPSHOT>,<FREQUENCY>,<RETENTION>,<YES_NO>,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+S3,<BUCKET_NAME>,<BUCKET_NAME>,<REGION>,n/a,Data/backup storage,<VERSIONING_OR_COPY>,<FREQUENCY>,<LIFECYCLE_RULE>,<YES_NO>,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+BackupVault,<VAULT_NAME>,<VAULT_NAME>,<REGION>,n/a,Recovery point storage,n/a,n/a,<RETENTION>,<YES_NO>,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+VPC,<VPC_NAME>,<VPC_ID>,<REGION>,n/a,Network isolation,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+SecurityGroup,<SG_NAME>,<SG_ID>,<REGION>,n/a,Traffic control,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+IAMRole,<ROLE_NAME>,<ROLE_NAME>,global,n/a,Service/instance permissions,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+CloudWatchAlarm,<ALARM_NAME>,<ALARM_NAME>,<REGION>,n/a,Health/backup alerting,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+SNSTopic,<TOPIC_NAME>,<TOPIC_NAME>,<REGION>,n/a,Alert delivery,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>
+Lambda,<FUNCTION_NAME>,<FUNCTION_NAME>,<REGION>,n/a,Optional automation,n/a,n/a,n/a,n/a,Prateek Hanvate,<ENVIRONMENT>,<IMPLEMENTED_OR_PROPOSED>,<NOTES>

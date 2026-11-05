@@ -1,0 +1,43 @@
+flowchart TB
+    User(["Users / Administrators"])
+
+    subgraph AWS["AWS Cloud - Region: PRIMARY_REGION"]
+        subgraph VPC["Amazon VPC"]
+            subgraph PUB["Subnet"]
+                EC2["Amazon EC2<br/>Primary Workload"]
+                EBS[("Amazon EBS<br/>Attached Volumes")]
+            end
+        end
+
+        S3[("Amazon S3<br/>Backup / Data Bucket")]
+        BKP["AWS Backup<br/>Backup Plan + Vault<br/>(Confirm)"]
+        IAM["AWS IAM<br/>Roles and Policies"]
+        CW["Amazon CloudWatch<br/>Metrics, Logs, Alarms"]
+        SNS["Amazon SNS<br/>Notifications<br/>(Confirm)"]
+        LMB["AWS Lambda<br/>Automation<br/>(Proposed)"]
+    end
+
+    subgraph REC["Recovery Environment"]
+        RS3[("Recovery Storage<br/>Cross-Region Copy<br/>(Proposed)")]
+        REC_EC2["Restored EC2 / EBS<br/>Created on demand"]
+    end
+
+    Admin(["Project Owner / Operator"])
+
+    User --> EC2
+    EC2 --- EBS
+    EC2 -- "app data" --> S3
+    EBS -- "snapshots" --> BKP
+    EC2 -- "resource backup" --> BKP
+    BKP -- "recovery points" --> RS3
+    S3 -. "replication (Proposed)" .-> RS3
+    IAM -. "service role" .-> BKP
+    IAM -. "instance profile" .-> EC2
+    EC2 -- "metrics / logs" --> CW
+    BKP -- "job events" --> CW
+    CW -- "alarm" --> SNS
+    SNS -- "email alert" --> Admin
+    CW -. "event trigger (Proposed)" .-> LMB
+    RS3 -- "restore" --> REC_EC2
+    BKP -- "restore" --> REC_EC2
+    Admin -- "Console restore and validate" --> REC_EC2

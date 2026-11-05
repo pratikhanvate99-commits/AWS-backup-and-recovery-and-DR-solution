@@ -1,0 +1,23 @@
+sequenceDiagram
+    autonumber
+    participant Sched as Backup Schedule
+    participant BKP as AWS Backup / Snapshot Process
+    participant EBS as EBS Volumes / EC2
+    participant Vault as Backup Vault / S3
+    participant CW as CloudWatch
+    participant SNS as SNS (Confirm)
+    participant Op as Operator
+
+    Sched->>BKP: Trigger backup job (SCHEDULE)
+    BKP->>EBS: Request point-in-time snapshot
+    EBS-->>BKP: Snapshot created
+    BKP->>Vault: Store recovery point (encrypted)
+    BKP->>CW: Publish job status / metrics
+    alt Job failed or alarm threshold breached
+        CW->>SNS: Alarm state = ALARM
+        SNS->>Op: Notification
+    else Job succeeded
+        CW-->>Op: Status visible on dashboard
+    end
+    Note over Vault: Lifecycle rule removes recovery points after RETENTION_PERIOD
+    Op->>Vault: Periodic restore test (see Documentation/09)

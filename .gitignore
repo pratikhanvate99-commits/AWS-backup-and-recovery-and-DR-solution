@@ -1,0 +1,97 @@
+# ---------- Secrets & environment ----------
+.env
+.env.*
+!.env.example
+*.env
+secrets.*
+*secret*
+*credentials*
+!Configuration/environment-template.md
+
+# ---------- AWS ----------
+.aws/
+aws-credentials*
+credentials
+config.local
+*.accesskey
+*accessKeys.csv
+rootkey.csv
+sso-cache/
+
+# ---------- SSH / keys / certificates ----------
+*.pem
+*.ppk
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+id_rsa*
+id_ed25519*
+id_ecdsa*
+*.pub
+*.gpg
+*.asc
+known_hosts
+
+# ---------- Infrastructure-as-Code state (not used here, blocked defensively) ----------
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+*.tfvars.json
+crash.log
+.serverless/
+cdk.out/
+samconfig.toml
+
+# ---------- Backups, archives, dumps ----------
+*.bak
+*.backup
+*.dump
+*.sql
+*.sql.gz
+*.dmp
+*.snapshot
+*.ami
+*.vmdk
+*.ova
+*.img
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+backups/
+restore-output/
+dumps/
+# Allow the published release archive to be committed deliberately if ever needed:
+# !AWS-Disaster-Recovery-Solution.zip
+
+# ---------- Personal data & logs ----------
+*.log
+account-info*
+personal*
+*.pcap
+*.har
+
+# ---------- Local-only resource inventories (templates are allowed) ----------
+Configuration/*.local.*
+Configuration/resource-inventory.csv
+Configuration/*-filled.*
+
+# ---------- Screenshots must be reviewed/redacted before commit ----------
+Screenshots/**/_unredacted/
+Screenshots/**/*-raw.*
+
+# ---------- OS / editor ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+node_modules/
+__pycache__/
