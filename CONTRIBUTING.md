@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in this project. This repository documents a **manually configured** (AWS Management Console) disaster recovery and backup solution and provides reusable templates and example scripts.
+Thank you for your interest in this project. This repository documents a **manually configured** (AWS Management Console) disaster recovery and backup solution and provides reusable templates and examples.
 
 ## Ground rules
 
@@ -13,6 +13,7 @@ Thank you for your interest in this project. This repository documents a **manua
 
 1. Fork the repository and create a branch: `git checkout -b docs/improve-recovery-steps`
 2. Make your change and run the local checks:
+
    ```bash
    # Shell syntax
    for f in Scripts/*.sh; do bash -n "$f"; done
@@ -20,6 +21,7 @@ Thank you for your interest in this project. This repository documents a **manua
    shellcheck Scripts/*.sh
    npx markdownlint-cli2 "**/*.md"
    ```
+
 3. Commit using clear messages (e.g. `docs: clarify EBS restore steps`).
 4. Open a pull request describing *what* changed and *why*.
 

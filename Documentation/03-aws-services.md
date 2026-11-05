@@ -17,16 +17,21 @@ Not every service listed here is necessarily part of the final implementation. M
 ## Service notes
 
 ### Amazon EC2 and EBS
-EBS snapshots are **incremental** point-in-time copies stored durably by AWS (backed by S3 internally). An AMI can be created from an instance to capture its configuration plus snapshots of attached volumes.
+
+EBS snapshots are **incremental** point-in-time copies stored durably by AWS. An AMI can be created from an instance to capture its configuration and associated snapshots.
 
 ### Amazon S3
+
 S3 provides high durability for objects. Enabling **versioning** protects against overwrite and accidental deletion; **lifecycle rules** move or expire data to control cost.
 
 ### AWS Backup
+
 AWS Backup centralises scheduling, retention, encryption and monitoring across supported services. Recovery points are stored in **backup vaults**.
 
 ### Amazon CloudWatch and SNS
+
 CloudWatch alarms can publish to an SNS topic, which delivers email or other notifications. AWS Backup job events can also be surfaced through Amazon EventBridge.
 
 ### AWS IAM
+
 Use IAM roles for services (for example, the AWS Backup service role) and avoid embedding access keys on instances or in code.

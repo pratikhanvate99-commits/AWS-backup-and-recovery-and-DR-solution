@@ -5,13 +5,13 @@
 ![Docs](https://img.shields.io/badge/Type-Documentation%20%26%20Templates-informational)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-A documented backup and disaster recovery solution on Amazon Web Services, designed and configured manually through the **AWS Management Console**, with reusable templates, runbooks and safe example scripts.
+A documented backup and disaster recovery solution on Amazon Web Services, configured manually through the **AWS Management Console**, with reusable templates, runbooks and safe example scripts.
 
-> **Transparency note.** The infrastructure was built manually in the AWS Console. It was **not** provisioned with Terraform, CloudFormation or any other Infrastructure as Code. Scripts in this repository are illustrative examples and were **not** used in the original project. Items marked *Confirm* or *Proposed* are not claimed as implemented. No RTO/RPO values, test results or screenshots are fabricated.
+> **Transparency note:** The infrastructure was built manually in the AWS Console. It was **not** provisioned with Terraform, CloudFormation or other Infrastructure as Code. Scripts in this repository are examples and were not used to build the infrastructure.
 
 ## Introduction
 
-Organisations depend on cloud workloads that must survive instance failure, data corruption, human error and outages. This project applies AWS services to protect a workload with scheduled backups, defines how to recover from common disaster scenarios, and documents monitoring, security and cost practices following a *backup and restore* DR strategy.
+This project documents ways to protect an AWS workload against instance failure, data corruption, human error and outages with backups, recovery procedures, monitoring and security controls.
 
 ## Objectives
 
@@ -22,10 +22,6 @@ Organisations depend on cloud workloads that must survive instance failure, data
 5. Apply IAM least privilege and encryption.
 6. Control cost through lifecycle management.
 7. Validate recovery through restore testing.
-
-## Problem statement
-
-Without tested backups and a clear recovery plan, failures can cause prolonged downtime and permanent data loss. See [`Documentation/02-problem-statement.md`](Documentation/02-problem-statement.md).
 
 ## Technology stack
 
@@ -51,152 +47,89 @@ Without tested backups and a clear recovery plan, failures can cause prolonged d
 | Amazon SNS | Alert notifications | Confirm |
 | AWS Lambda | Automation | Proposed |
 
-Details: [`Documentation/03-aws-services.md`](Documentation/03-aws-services.md).
+See [`Documentation/03-aws-services.md`](Documentation/03-aws-services.md) for details.
 
 ## Architecture
 
 ```mermaid
 flowchart TB
-    User(["Users / Administrators"])
+    User([Users / Administrators])
 
-    subgraph AWS["AWS Cloud - Region: PRIMARY_REGION"]
-        subgraph VPC["Amazon VPC"]
-            subgraph PUB["Subnet"]
-                EC2["Amazon EC2<br/>Primary Workload"]
-                EBS[("Amazon EBS<br/>Attached Volumes")]
-            end
+    subgraph AWS[AWS Cloud - PRIMARY_REGION]
+        subgraph VPC[Amazon VPC]
+            EC2[Amazon EC2 - Primary Workload]
+            EBS[(Amazon EBS - Attached Volumes)]
         end
-
-        S3[("Amazon S3<br/>Backup / Data Bucket")]
-        BKP["AWS Backup<br/>Backup Plan + Vault<br/>(Confirm)"]
-        IAM["AWS IAM<br/>Roles and Policies"]
-        CW["Amazon CloudWatch<br/>Metrics, Logs, Alarms"]
-        SNS["Amazon SNS<br/>Notifications<br/>(Confirm)"]
-        LMB["AWS Lambda<br/>Automation<br/>(Proposed)"]
+        S3[(Amazon S3 - Backup / Data Bucket)]
+        BKP[AWS Backup - Plan and Vault]
+        IAM[AWS IAM - Roles and Policies]
+        CW[Amazon CloudWatch - Metrics, Logs, Alarms]
+        SNS[Amazon SNS - Notifications]
     end
 
-    subgraph REC["Recovery Environment"]
-        RS3[("Recovery Storage<br/>Cross-Region Copy<br/>(Proposed)")]
-        REC_EC2["Restored EC2 / EBS<br/>Created on demand"]
+    subgraph REC[Recovery Environment]
+        RS3[(Recovery Storage - Proposed)]
+        REC_EC2[Restored EC2 / EBS - Created on demand]
     end
 
-    Admin(["Project Owner / Operator"])
-
+    Admin[Project Owner / Operator]
     User --> EC2
     EC2 --- EBS
-    EC2 -- "app data" --> S3
-    EBS -- "snapshots" --> BKP
-    EC2 -- "resource backup" --> BKP
-    BKP -- "recovery points" --> RS3
-    S3 -. "replication (Proposed)" .-> RS3
-    IAM -. "service role" .-> BKP
-    IAM -. "instance profile" .-> EC2
-    EC2 -- "metrics / logs" --> CW
-    BKP -- "job events" --> CW
-    CW -- "alarm" --> SNS
-    SNS -- "email alert" --> Admin
-    CW -. "event trigger (Proposed)" .-> LMB
-    RS3 -- "restore" --> REC_EC2
-    BKP -- "restore" --> REC_EC2
-    Admin -- "Console restore and validate" --> REC_EC2
+    EC2 --> S3
+    EBS --> BKP
+    EC2 --> BKP
+    BKP --> RS3
+    IAM -. service role .-> BKP
+    IAM -. instance profile .-> EC2
+    EC2 --> CW
+    BKP --> CW
+    CW --> SNS
+    SNS --> Admin
+    RS3 --> REC_EC2
+    BKP --> REC_EC2
+    Admin --> REC_EC2
 ```
 
-More: [`Architecture/aws-architecture.md`](Architecture/aws-architecture.md) | [`Architecture/disaster-recovery-workflow.md`](Architecture/disaster-recovery-workflow.md)
+More diagrams: [`Architecture/aws-architecture.md`](Architecture/aws-architecture.md) and [`Architecture/disaster-recovery-workflow.md`](Architecture/disaster-recovery-workflow.md).
 
-## Implementation workflow
+## Backup and recovery
 
-```mermaid
-flowchart LR
-    A[1. VPC and security groups] --> B[2. EC2 and EBS]
-    B --> C[3. S3 bucket with versioning]
-    C --> D[4. AWS Backup vault and plan]
-    D --> E[5. IAM roles and policies]
-    E --> F[6. CloudWatch alarms and SNS]
-    F --> G[7. Restore testing]
-```
+- Schedule EC2/EBS recovery points through AWS Backup or snapshots.
+- Use S3 versioning and lifecycle rules.
+- Apply encryption at rest and define retention according to owner policy.
+- Document RPO and RTO targets and measured values in the recovery configuration template.
+- Restore to a new resource, validate it, and record the results before resuming service.
 
-Step-by-step console setup: [`Documentation/04-infrastructure-setup.md`](Documentation/04-infrastructure-setup.md).
+See [`Documentation/05-backup-strategy.md`](Documentation/05-backup-strategy.md) and [`Documentation/06-disaster-recovery-plan.md`](Documentation/06-disaster-recovery-plan.md).
 
-## Backup strategy
+## Screenshots and testing
 
-- Scheduled recovery points for EC2/EBS through AWS Backup or snapshots.
-- S3 versioning and lifecycle rules.
-- Encryption at rest, retention per policy (`<RETENTION>` - to be defined by the owner).
-- RPO and RTO explained in [`Documentation/05-backup-strategy.md`](Documentation/05-backup-strategy.md); target and measured values are recorded in [`Configuration/recovery-configuration-template.md`](Configuration/recovery-configuration-template.md).
+Add only real, redacted AWS console screenshots to [`Screenshots/`](Screenshots/README.md). Do not claim test results until they have been measured and recorded in [`Documentation/09-testing-and-validation.md`](Documentation/09-testing-and-validation.md).
 
-## Disaster recovery process
+## Security and limitations
 
-```mermaid
-flowchart LR
-    A[Detect] --> B[Assess] --> C[Select recovery point] --> D[Restore to new resource] --> E[Validate] --> F[Resume service] --> G[Review]
-```
-
-Scenarios covered: EC2 failure, EBS loss, S3 deletion, AZ/Region outage, security incident. See [`Documentation/06-disaster-recovery-plan.md`](Documentation/06-disaster-recovery-plan.md) and [`Documentation/07-recovery-procedures.md`](Documentation/07-recovery-procedures.md).
-
-## Screenshots
-
-Real, redacted console screenshots belong in [`Screenshots/`](Screenshots/README.md) (EC2, S3, EBS, Backup, CloudWatch, Recovery).
-
-| Area | Status |
-|------|--------|
-| EC2 | `<ADD YOUR SCREENSHOT>` |
-| S3 | `<ADD YOUR SCREENSHOT>` |
-| EBS | `<ADD YOUR SCREENSHOT>` |
-| AWS Backup | `<ADD YOUR SCREENSHOT>` |
-| CloudWatch | `<ADD YOUR SCREENSHOT>` |
-| Recovery | `<ADD YOUR SCREENSHOT>` |
-
-## Testing results
-
-No results are claimed until you record them. Use the log in [`Documentation/09-testing-and-validation.md`](Documentation/09-testing-and-validation.md).
-
-| Test | Date | Measured result |
-|------|------|-----------------|
-| EC2/EBS restore | `<DATE>` | `<MEASURED>` |
-| S3 version recovery | `<DATE>` | `<MEASURED>` |
-| Alert delivery | `<DATE>` | `<MEASURED>` |
-
-## Security considerations
-
-IAM least privilege and MFA, encryption, Block Public Access, restricted security groups, CloudTrail, and a strict `.gitignore`. Read the [security guide and pre-publish checklist](Documentation/08-security-best-practices.md).
-
-## Limitations
-
-Manual configuration, backup-and-restore recovery time, possible single-region exposure, and manual restore steps. See [`Documentation/11-limitations-and-future-scope.md`](Documentation/11-limitations-and-future-scope.md).
-
-## Future enhancements (proposed, not implemented)
-
-- Cross-region / cross-account backup copies
-- Infrastructure as Code (Terraform or CloudFormation)
-- Automated restore testing
-- Vault Lock / S3 Object Lock
-- Pilot Light or Warm Standby, Route 53 failover
+Use IAM least privilege and MFA, encryption, S3 Block Public Access, restricted security groups, CloudTrail and the strict `.gitignore`. This repository documents a manually configured solution; recovery and cross-region capabilities may require manual steps and further configuration. See the [security guide](Documentation/08-security-best-practices.md) and [limitations](Documentation/11-limitations-and-future-scope.md).
 
 ## Repository structure
 
 ```text
-AWS-Disaster-Recovery-Solution/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── CONTRIBUTING.md
-├── CHANGELOG.md
-├── Architecture/        # diagrams (.mmd) and architecture/workflow docs
-├── Documentation/       # 01-11 technical documentation
-├── Configuration/       # inventory, backup policy, recovery and environment templates
-├── Scripts/             # safe example scripts (not used in the original project)
-├── Screenshots/         # EC2, S3, EBS, Backup, CloudWatch, Recovery
-├── GitHub/              # upload guide and Actions notes
-└── .github/workflows/   # optional quality-check workflow
+Architecture/        # diagrams and architecture/workflow docs
+Configuration/       # inventory, backup policy, recovery and environment templates
+Documentation/       # technical documentation
+GitHub/              # upload guide and Actions notes
+Screenshots/         # redacted console screenshots
+Scripts/             # safe example scripts
+.github/workflows/   # quality-check workflow
 ```
 
 ## Quality checks
 
-An optional GitHub Actions workflow validates Markdown, Mermaid diagrams, shell syntax and secret exposure. It never touches AWS. See [`GitHub/GITHUB_ACTIONS_EXAMPLE.md`](GitHub/GITHUB_ACTIONS_EXAMPLE.md).
+The optional GitHub Actions workflow validates Markdown, Mermaid diagrams, shell syntax and secret exposure. It does not access AWS. See [`GitHub/GITHUB_ACTIONS_EXAMPLE.md`](GitHub/GITHUB_ACTIONS_EXAMPLE.md).
 
 ## Author
 
 **Prateek Hanvate**
+
 - GitHub: `<YOUR_GITHUB_PROFILE_URL>`
 - LinkedIn: `<YOUR_LINKEDIN_URL>`
 - Email: `<OPTIONAL_PUBLIC_EMAIL>`
@@ -204,5 +137,3 @@ An optional GitHub Actions workflow validates Markdown, Mermaid diagrams, shell 
 ## License
 
 Released under the [MIT License](LICENSE).
-#   A W S - b a c k u p - a n d - r e c o v e r y - a n d - D R - s o l u t i o n  
- 
